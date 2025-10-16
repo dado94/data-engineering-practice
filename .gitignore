@@ -1,3 +1,13 @@
-*.idea*
-*.DS_Store*
-*postgres-data*
+
+downloads/Divvy_Trips_2018_Q4.csv
+downloads/Divvy_Trips_2019_Q1.csv
+downloads/Divvy_Trips_2019_Q2.csv
+downloads/Divvy_Trips_2019_Q3.csv
+downloads/Divvy_Trips_2019_Q4.csv
+downloads/Divvy_Trips_2020_Q1.csv
+downloads/__MACOSX/._Divvy_Trips_2018_Q4.csv
+downloads/__MACOSX/._Divvy_Trips_2019_Q1.csv
+downloads/__MACOSX/._Divvy_Trips_2019_Q2.csv
+downloads/__MACOSX/._Divvy_Trips_2019_Q3.csv
+downloads/__MACOSX/._Divvy_Trips_2019_Q4.csv
+downloads/__MACOSX/._Divvy_Trips_2020_Q1.csv
