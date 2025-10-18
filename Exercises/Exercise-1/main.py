@@ -1,4 +1,4 @@
-import requests, os, zipfile
+import requests, os, zipfile, unittest
 from concurrent.futures import ThreadPoolExecutor
 
 download_uris = [
@@ -26,7 +26,6 @@ def worker(index):
         with open(zip_file_path, "wb") as f:
             f.write(response.content)
         # extract
-        extracted_files = "None"
         print(f"Worker #{index}: Extracting \"{file_name}\"")
         with zipfile.ZipFile(zip_file_path, "r") as zip_file:
             zip_file.extractall(save_path)
