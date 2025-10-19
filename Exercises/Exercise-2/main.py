@@ -1,5 +1,4 @@
 import requests, pandas as pd, re, os
-import Utils.utils as utils
 
 weather_data_url = 'https://www.ncei.noaa.gov/data/local-climatological-data/access/2021/'
 save_path = os.path.join(os.getcwd(), "downloads")
@@ -37,7 +36,7 @@ def main():
     else:
         print(f"Error: {response.status_code}")
 
-    # utils.cleanup_folder(save_path)
+    os.remove(file_path)
 
 
 if __name__ == "__main__":
