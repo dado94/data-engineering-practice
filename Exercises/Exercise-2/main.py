@@ -4,6 +4,14 @@ weather_data_url = 'https://www.ncei.noaa.gov/data/local-climatological-data/acc
 save_path = os.path.join(os.getcwd(), "downloads")
 
 def main():
+
+    # init folder
+    if not (os.path.exists(save_path)): # windows does not allow file and folders with the same name, os.path.isdir is not needed
+        os.mkdir(save_path)
+        print(f"Folder \"{save_path}\" created")
+    else:
+        print(f"Folder \"{save_path}\" already exists")
+
     response = requests.get(weather_data_url)
     if response.status_code == 200:
         print("Downloading file list")
@@ -24,7 +32,7 @@ def main():
         # download
         file_path = os.path.join(save_path, file_name)
         response = requests.get(os.path.join(weather_data_url, file_name))
-        if response.status_code == 200:    
+        if response.status_code == 200:
             with open(file_path, "wb") as f:
                 f.write(response.content)
             # parse in pandas
