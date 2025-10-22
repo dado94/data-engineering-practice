@@ -27,6 +27,5 @@ def main():
             else:
                 print(f'Ignoring "{file}"')
 
-
 if __name__ == "__main__":
     main()
