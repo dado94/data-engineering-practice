@@ -12,7 +12,7 @@ drop table transactions; \
 "
 
 def main():
-    host = "localhost"
+    host = "postgres" # test with localhost, run on docker with postgres
     database = "postgres"
     user = "postgres"
     pas = "postgres"
