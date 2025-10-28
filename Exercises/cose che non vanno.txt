@@ -1,2 +1,3 @@
 - esercizio 6: caricare su spark senza zippare non è possibile
 - esercizio 6: i campi dei due csv non sono allineati, è un problema per query #5 ad esempio: Do Males or Females take longer trips on average? non è presente su file 2020
+- opzionale: pyspark almeno 3.1.2 per avere allowMissingColumns nell'unione di due df pyspark
