@@ -1,4 +1,5 @@
 import zipfile, os
+from datetime import datetime
 from pyspark.sql import SparkSession, functions as F
 from pyspark.sql.window import Window
 from pyspark.sql.types import IntegerType
@@ -45,6 +46,50 @@ def query3(df):
     print('----- END OF QUERY 3 -----')
     return result
 
+def query4(df):
+    # What were the top 3 trip stations each day for the last two weeks?
+    print('----- QUERY 4 -----')
+    # finding the first day
+    starting_day = df.select(F.date_sub(F.max('start_time'), 14).alias('starting_day')).first()['starting_day']
+    print(f'Starting day: {starting_day}')
+    window = Window.partitionBy('day').orderBy(F.col('trip_count').desc())
+    result = df.filter(F.col('start_time') >= starting_day) \
+        .groupBy(
+            F.date_trunc('day', 'start_time').alias('day'),
+            F.col('from_station_id').alias('station_id'),
+            F.col('from_station_name').alias('station_name')
+        ).agg(F.count('*').alias('trip_count')) \
+        .withColumn('rownum', F.row_number().over(window)) \
+        .filter(F.col('rownum') <= 3)
+                 
+    print('----- END QUERY 4 -----')
+    return result
+
+def query5(df):
+    # Do Males or Females take longer trips on average?
+    print('----- QUERY 5 -----')
+    result = df.groupBy(F.col('gender')) \
+        .agg(F.avg('tripduration').alias('average_trip_duration'), 
+             F.count('*').alias('trip_count'))
+    print('----- END QUERY 5 -----')
+    return result
+
+def query6(df):
+    # What is the top 10 ages of those that take the longest trips, and shortest?
+    print('----- QUERY 6 -----')
+    # age, duration, rownum
+    shortest = df.orderBy(F.col('tripduration').asc()) \
+        .withColumn('age', F.lit(datetime.now().year) - F.col('birthyear')) \
+        .select('trip_id', 'tripduration', 'birthyear', 'age') \
+        .limit(10)
+    longest = df.orderBy(F.col('tripduration').desc()) \
+        .withColumn('age',F.lit(datetime.now().year) - F.col('birthyear')) \
+        .select('trip_id', 'tripduration', 'birthyear', 'age') \
+        .limit(10)
+    result = shortest.union(longest)
+    print('----- END QUERY 6 -----')
+    return result
+
 def data_load_and_preparation(spark):
     df_2019 = spark.read.csv(f'{os.path.join(file_folder_path, file_list[0] + ".csv")}', header=True, inferSchema=True)
     df_2020 = spark.read.csv(f'{os.path.join(file_folder_path, file_list[1] + ".csv")}', header=True, inferSchema=True)
@@ -79,7 +124,7 @@ def data_load_and_preparation(spark):
     # check schema
     df_merged.printSchema()
 
-    return df_merged
+    return df_merged, df_2019, df_2020
 
 def main():
     
@@ -96,12 +141,16 @@ def main():
     spark = SparkSession.builder.appName("Exercise6").enableHiveSupport().getOrCreate()
 
     # load data
-    df = data_load_and_preparation(spark)
+    df_merged, df_2019, df_2020 = data_load_and_preparation(spark)
+    df_2019.printSchema()
 
     # queries
-    query1(spark) # no df is required, it uses the view "bikes"
-    query2(df).show(5)
-    query3(df).show(50)
+    #query1(spark) # no df is required, it uses the view "bikes"
+    #query2(df_merged).show(5)
+    #query3(df_merged).show(50)
+    #query4(df_merged).show()
+    query5(df_2019).show()
+    #query6(df_2019).show()
     
 
 # 2019: trip_id,start_time,end_time,bikeid,tripduration,from_station_id,from_station_name,to_station_id,to_station_name,usertype,gender,birthyear
