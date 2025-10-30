@@ -145,12 +145,12 @@ def main():
     df_2019.printSchema()
 
     # queries
-    #query1(spark) # no df is required, it uses the view "bikes"
-    #query2(df_merged).show(5)
-    #query3(df_merged).show(50)
-    #query4(df_merged).show()
+    query1(spark) # no df is required, it uses the view "bikes"
+    query2(df_merged).show(5)
+    query3(df_merged).show(50)
+    query4(df_merged).show()
     query5(df_2019).show()
-    #query6(df_2019).show()
+    query6(df_2019).show()
     
 
 # 2019: trip_id,start_time,end_time,bikeid,tripduration,from_station_id,from_station_name,to_station_id,to_station_name,usertype,gender,birthyear
