@@ -28,12 +28,13 @@ def load_zip_into_spark(spark):
     print("Loading into spark")
     df = spark.createDataFrame(pd_df)
     print("Done loading into memory, sample:")
-    df.show(1)
     return df
 
 def parquet_exists(save_location):
     return os.path.exists(save_location) and any(f.endswith(".parquet") for f in os.listdir(save_location))
-    
+
+def print_subset(df, count):
+    df.select("date", "serial_number", "model", "capacity_bytes", "source_file").show(count)    
 
 def get_df(spark):
     save_location = os.path.join(file_folder_path, "temp_parquet")
@@ -46,9 +47,12 @@ def get_df(spark):
         print(f"Saved in {save_location}")
         return df
     else:
-        print("Dataframe already, reading parquet")
+        print("Dataframe already loaded previously, using parquet")
         df = spark.read.parquet(save_location)
         return df
+
+def query1(df):
+    return df.withColumn("source_file", F.lit(zip_file_name[:-3]))
 
 def main():
     # init pyspark
@@ -63,7 +67,10 @@ def main():
     
 
     df = get_df(spark)
+    print_subset(df, 1)
     
+    df = query1(df)
+    print_subset(df, 5)
     
     
     # your code here

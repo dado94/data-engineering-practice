@@ -9,4 +9,5 @@ services:
       image: "exercise-7"
       volumes:
         - .:/app
+        - ./log4j2.properties:/spark/conf/log4j2.properties
       command: /spark/bin/spark-submit main.py
