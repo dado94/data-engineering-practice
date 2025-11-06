@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
-import zipfile, os, pandas as pd
+import zipfile, os, re, pandas as pd
 from io import BytesIO
 
 download_uri = 'https://www.backblaze.com/b2/hard-drive-test-data.html'
@@ -33,8 +33,8 @@ def load_zip_into_spark(spark):
 def parquet_exists(save_location):
     return os.path.exists(save_location) and any(f.endswith(".parquet") for f in os.listdir(save_location))
 
-def print_subset(df, count):
-    df.select("date", "serial_number", "model", "capacity_bytes", "source_file").show(count)    
+def print_subset(df, count, field_list):
+    df.select(field_list).show(count)    
 
 def get_df(spark):
     save_location = os.path.join(file_folder_path, "temp_parquet")
@@ -51,8 +51,21 @@ def get_df(spark):
         df = spark.read.parquet(save_location)
         return df
 
-def query1(df):
+def task1(df):
     return df.withColumn("source_file", F.lit(zip_file_name[:-3]))
+
+def task2(df):
+    return df.withColumn("file_date", F.to_date(F.regexp_extract('source_file', r"-(\d{4}-\d{2}-\d{2})-", 1), "yyyy-MM-dd"))
+
+def task3(df):
+    return df.withColumn("brand", F.when(F.col("model").contains(' '), 
+                                         F.split(F.col("model"), ' ').getItem(0))
+                                         .otherwise("Unknown")
+    )
+
+def task4(df):
+    return df.groupBy(F.col('model')).agg(F.avg("capacity_bytes").alias("average_capacity"))
+
 
 def main():
     # init pyspark
@@ -67,12 +80,20 @@ def main():
     
 
     df = get_df(spark)
-    print_subset(df, 1)
+    print_subset(df, 1, ["date", "serial_number", "model", "capacity_bytes"])
     
-    df = query1(df)
-    print_subset(df, 5)
+    df = task1(df)
+    print_subset(df, 5, ["date", "serial_number", "model", "capacity_bytes", "source_file"])
+
+    df = task2(df)
+    print_subset(df, 5, ["date", "serial_number", "model", "capacity_bytes", "source_file", "file_date"])
     
+    df = task3(df)
+    print_subset(df, 5, ["date", "serial_number", "model", "capacity_bytes", "brand"])
     
+    df = task4(df)
+    print(f"{df.count()} models found")
+    print_subset(df, 5, ["model", "average_capacity"])
     # your code here
 
 
